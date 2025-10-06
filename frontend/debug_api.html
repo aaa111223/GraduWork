@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>API调试页面</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 50px auto;
+            padding: 20px;
+        }
+        .section {
+            margin-bottom: 30px;
+            padding: 20px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+        }
+        button {
+            background: #007bff;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            margin-right: 10px;
+        }
+        button:hover {
+            background: #0056b3;
+        }
+        .result {
+            margin-top: 15px;
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 4px;
+            white-space: pre-wrap;
+            font-family: monospace;
+        }
+        .success {
+            border-left: 4px solid #28a745;
+        }
+        .error {
+            border-left: 4px solid #dc3545;
+            background: #f8d7da;
+        }
+    </style>
+</head>
+<body>
+    <h1>API调试页面</h1>
+    
+    <div class="section">
+        <h2>统计数据API</h2>
+        <button onclick="testStats()">测试统计数据</button>
+        <div id="stats-result" class="result" style="display: none;"></div>
+    </div>
+    
+    <div class="section">
+        <h2>最新职位API</h2>
+        <button onclick="testLatestJobs()">测试最新职位</button>
+        <div id="jobs-result" class="result" style="display: none;"></div>
+    </div>
+    
+    <div class="section">
+        <h2>所有职位API</h2>
+        <button onclick="testAllJobs()">测试所有职位</button>
+        <div id="all-jobs-result" class="result" style="display: none;"></div>
+    </div>
+
+    <script>
+        const API_BASE = 'http://127.0.0.1:8000/api';
+        
+        function showResult(elementId, data, isError = false) {
+            const element = document.getElementById(elementId);
+            element.style.display = 'block';
+            element.className = `result ${isError ? 'error' : 'success'}`;
+            element.textContent = JSON.stringify(data, null, 2);
+        }
+        
+        async function testStats() {
+            try {
+                const response = await fetch(`${API_BASE}/stats/dashboard/`, {
+                    headers: {
+                        'Accept': 'application/json',
+                        'Origin': 'http://localhost:5173'
+                    }
+                });
+                
+                const data = await response.json();
+                showResult('stats-result', {
+                    status: response.status,
+                    data: data
+                });
+            } catch (error) {
+                showResult('stats-result', {
+                    error: error.message
+                }, true);
+            }
+        }
+        
+        async function testLatestJobs() {
+            try {
+                const response = await fetch(`${API_BASE}/jobs/latest/?limit=3`, {
+                    headers: {
+                        'Accept': 'application/json',
+                        'Origin': 'http://localhost:5173'
+                    }
+                });
+                
+                const data = await response.json();
+                showResult('jobs-result', {
+                    status: response.status,
+                    count: Array.isArray(data) ? data.length : 'N/A',
+                    data: data
+                });
+            } catch (error) {
+                showResult('jobs-result', {
+                    error: error.message
+                }, true);
+            }
+        }
+        
+        async function testAllJobs() {
+            try {
+                const response = await fetch(`${API_BASE}/jobs/`, {
+                    headers: {
+                        'Accept': 'application/json',
+                        'Origin': 'http://localhost:5173'
+                    }
+                });
+                
+                const data = await response.json();
+                showResult('all-jobs-result', {
+                    status: response.status,
+                    count: data.count || 'N/A',
+                    data: data
+                });
+            } catch (error) {
+                showResult('all-jobs-result', {
+                    error: error.message
+                }, true);
+            }
+        }
+    </script>
+</body>
+</html>

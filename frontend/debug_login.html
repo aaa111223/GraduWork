@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>登录调试页面</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 600px;
+            margin: 50px auto;
+            padding: 20px;
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+        }
+        input {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+        button {
+            background: #007bff;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            margin-right: 10px;
+        }
+        button:hover {
+            background: #0056b3;
+        }
+        .result {
+            margin-top: 20px;
+            padding: 10px;
+            border-radius: 4px;
+        }
+        .success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        .error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        .info {
+            background: #d1ecf1;
+            color: #0c5460;
+            border: 1px solid #bee5eb;
+        }
+    </style>
+</head>
+<body>
+    <h1>前端登录功能调试</h1>
+    
+    <div class="form-group">
+        <label for="phone">手机号:</label>
+        <input type="text" id="phone" value="13800138000">
+    </div>
+    
+    <div class="form-group">
+        <label for="password">密码:</label>
+        <input type="password" id="password" value="123456">
+    </div>
+    
+    <button onclick="testLogin()">测试登录</button>
+    <button onclick="testWrongLogin()">测试错误登录</button>
+    <button onclick="testRegister()">测试注册</button>
+    <button onclick="clearResult()">清除结果</button>
+    
+    <div id="result"></div>
+
+    <script>
+        const API_BASE = 'http://127.0.0.1:8000/api';
+        
+        function showResult(message, type = 'info') {
+            const resultDiv = document.getElementById('result');
+            resultDiv.innerHTML = `<div class="${type}">${message}</div>`;
+        }
+        
+        function clearResult() {
+            document.getElementById('result').innerHTML = '';
+        }
+        
+        async function testLogin() {
+            const phone = document.getElementById('phone').value;
+            const password = document.getElementById('password').value;
+            
+            showResult('正在测试登录...', 'info');
+            
+            try {
+                const response = await fetch(`${API_BASE}/auth/login/`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json; charset=utf-8',
+                        'Accept': 'application/json'
+                    },
+                    body: JSON.stringify({ phone, password })
+                });
+                
+                const data = await response.json();
+                
+                if (response.ok) {
+                    showResult(`✅ 登录成功！<br>
+                        用户: ${data.user?.real_name} (${data.user?.phone})<br>
+                        Token: ${data.access_token ? '已获取' : '未获取'}<br>
+                        响应数据: <pre>${JSON.stringify(data, null, 2)}</pre>`, 'success');
+                } else {
+                    const errorMsg = data.non_field_errors?.[0] || data.message || data.detail || '登录失败';
+                    showResult(`❌ 登录失败<br>
+                        状态码: ${response.status}<br>
+                        错误信息: ${errorMsg}<br>
+                        完整响应: <pre>${JSON.stringify(data, null, 2)}</pre>`, 'error');
+                }
+            } catch (error) {
+                showResult(`❌ 网络错误: ${error.message}`, 'error');
+            }
+        }
+        
+        async function testWrongLogin() {
+            showResult('正在测试错误登录...', 'info');
+            
+            try {
+                const response = await fetch(`${API_BASE}/auth/login/`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json; charset=utf-8',
+                        'Accept': 'application/json'
+                    },
+                    body: JSON.stringify({ 
+                        phone: '13800138000', 
+                        password: 'wrongpassword' 
+                    })
+                });
+                
+                const data = await response.json();
+                
+                if (response.status === 400) {
+                    const errorMsg = data.non_field_errors?.[0] || data.message || data.detail || '未知错误';
+                    showResult(`✅ 错误处理正常<br>
+                        状态码: ${response.status}<br>
+                        错误信息: ${errorMsg}<br>
+                        完整响应: <pre>${JSON.stringify(data, null, 2)}</pre>`, 'success');
+                } else {
+                    showResult(`❌ 意外响应<br>
+                        状态码: ${response.status}<br>
+                        响应数据: <pre>${JSON.stringify(data, null, 2)}</pre>`, 'error');
+                }
+            } catch (error) {
+                showResult(`❌ 网络错误: ${error.message}`, 'error');
+            }
+        }
+        
+        async function testRegister() {
+            showResult('正在测试注册...', 'info');
+            
+            const testData = {
+                phone: '13800138999',
+                password: '123456',
+                real_name: '测试用户',
+                email: 'test@example.com',
+                gender: 'male',
+                user_type: 'student'
+            };
+            
+            try {
+                const response = await fetch(`${API_BASE}/auth/register/`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json; charset=utf-8',
+                        'Accept': 'application/json'
+                    },
+                    body: JSON.stringify(testData)
+                });
+                
+                const data = await response.json();
+                
+                if (response.ok) {
+                    showResult(`✅ 注册成功！<br>
+                        响应数据: <pre>${JSON.stringify(data, null, 2)}</pre>`, 'success');
+                } else {
+                    showResult(`❌ 注册失败<br>
+                        状态码: ${response.status}<br>
+                        响应数据: <pre>${JSON.stringify(data, null, 2)}</pre>`, 'error');
+                }
+            } catch (error) {
+                showResult(`❌ 网络错误: ${error.message}`, 'error');
+            }
+        }
+    </script>
+</body>
+</html>

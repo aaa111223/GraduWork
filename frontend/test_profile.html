@@ -1,0 +1,527 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>个人中心功能测试</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 1200px;
+            margin: 20px auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .section {
+            background: white;
+            margin-bottom: 20px;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .section h2 {
+            margin-top: 0;
+            color: #2c3e50;
+            border-bottom: 2px solid #3498db;
+            padding-bottom: 10px;
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+            color: #555;
+        }
+        .form-group input, .form-group select, .form-group textarea {
+            width: 100%;
+            padding: 8px 12px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+        .form-group textarea {
+            height: 80px;
+            resize: vertical;
+        }
+        button {
+            background: #3498db;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            margin-right: 10px;
+            margin-bottom: 10px;
+        }
+        button:hover {
+            background: #2980b9;
+        }
+        button.danger {
+            background: #e74c3c;
+        }
+        button.danger:hover {
+            background: #c0392b;
+        }
+        .result {
+            margin-top: 15px;
+            padding: 15px;
+            border-radius: 4px;
+            white-space: pre-wrap;
+            font-family: monospace;
+            font-size: 12px;
+        }
+        .success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        .error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        .info {
+            background: #d1ecf1;
+            color: #0c5460;
+            border: 1px solid #bee5eb;
+        }
+        .grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+        .file-input {
+            margin: 10px 0;
+        }
+        .resume-item {
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            padding: 15px;
+            margin-bottom: 10px;
+            background: #f9f9f9;
+        }
+        .resume-item h4 {
+            margin: 0 0 10px 0;
+            color: #2c3e50;
+        }
+        .resume-item p {
+            margin: 5px 0;
+            color: #666;
+            font-size: 14px;
+        }
+        .hidden {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <h1>个人中心功能测试</h1>
+    
+    <!-- 登录区域 -->
+    <div class="section">
+        <h2>用户登录</h2>
+        <div class="form-group">
+            <label>手机号:</label>
+            <input type="text" id="loginPhone" value="13800138000" placeholder="请输入手机号">
+        </div>
+        <div class="form-group">
+            <label>密码:</label>
+            <input type="password" id="loginPassword" value="123456" placeholder="请输入密码">
+        </div>
+        <button onclick="login()">登录</button>
+        <button onclick="logout()">退出登录</button>
+        <div id="login-result" class="result hidden"></div>
+    </div>
+
+    <!-- 用户信息区域 -->
+    <div class="section">
+        <h2>用户基本信息</h2>
+        <button onclick="fetchProfile()">获取用户信息</button>
+        <div id="profile-result" class="result hidden"></div>
+        
+        <div class="grid">
+            <div>
+                <h3>基本信息</h3>
+                <div class="form-group">
+                    <label>姓名:</label>
+                    <input type="text" id="realName" placeholder="请输入真实姓名">
+                </div>
+                <div class="form-group">
+                    <label>邮箱:</label>
+                    <input type="email" id="email" placeholder="请输入邮箱">
+                </div>
+                <div class="form-group">
+                    <label>性别:</label>
+                    <select id="gender">
+                        <option value="">请选择</option>
+                        <option value="M">男</option>
+                        <option value="F">女</option>
+                        <option value="O">其他</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>地址:</label>
+                    <textarea id="address" placeholder="请输入详细地址"></textarea>
+                </div>
+                <button onclick="updateProfile()">保存基本信息</button>
+            </div>
+            
+            <div>
+                <h3>学生档案</h3>
+                <div class="form-group">
+                    <label>学号:</label>
+                    <input type="text" id="studentId" placeholder="请输入学号">
+                </div>
+                <div class="form-group">
+                    <label>学校:</label>
+                    <input type="text" id="school" placeholder="请输入学校名称">
+                </div>
+                <div class="form-group">
+                    <label>专业:</label>
+                    <input type="text" id="major" placeholder="请输入专业名称">
+                </div>
+                <div class="form-group">
+                    <label>年级:</label>
+                    <input type="text" id="grade" placeholder="如：2021级">
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 求职意向区域 -->
+    <div class="section">
+        <h2>求职意向</h2>
+        <button onclick="fetchJobIntention()">获取求职意向</button>
+        
+        <div class="grid">
+            <div>
+                <div class="form-group">
+                    <label>期望职位:</label>
+                    <input type="text" id="position" placeholder="如：前端开发工程师">
+                </div>
+                <div class="form-group">
+                    <label>期望薪资:</label>
+                    <select id="salaryRange">
+                        <option value="">请选择</option>
+                        <option value="3K-5K">3K-5K</option>
+                        <option value="5K-10K">5K-10K</option>
+                        <option value="10K-15K">10K-15K</option>
+                        <option value="15K-25K">15K-25K</option>
+                        <option value="25K-35K">25K-35K</option>
+                        <option value="35K+">35K以上</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>工作类型:</label>
+                    <select id="jobType">
+                        <option value="full_time">全职</option>
+                        <option value="part_time">兼职</option>
+                        <option value="internship">实习</option>
+                        <option value="contract">合同工</option>
+                    </select>
+                </div>
+            </div>
+            <div>
+                <div class="form-group">
+                    <label>期望城市 (多个用逗号分隔):</label>
+                    <input type="text" id="workCities" placeholder="如：北京市,上海市">
+                </div>
+                <div class="form-group">
+                    <label>期望行业:</label>
+                    <input type="text" id="industry" placeholder="如：互联网、金融、教育等">
+                </div>
+                <div class="form-group">
+                    <label>其他要求:</label>
+                    <textarea id="otherRequirements" placeholder="其他特殊要求或期望"></textarea>
+                </div>
+            </div>
+        </div>
+        <button onclick="saveJobIntention()">保存求职意向</button>
+        <div id="job-intention-result" class="result hidden"></div>
+    </div>
+
+    <!-- 简历管理区域 -->
+    <div class="section">
+        <h2>简历管理</h2>
+        <button onclick="fetchResumes()">获取简历列表</button>
+        
+        <div class="form-group">
+            <label>上传简历:</label>
+            <input type="file" id="resumeFile" accept=".pdf,.doc,.docx" class="file-input">
+            <button onclick="uploadResume()">上传简历</button>
+        </div>
+        
+        <div id="resumes-list"></div>
+        <div id="resume-result" class="result hidden"></div>
+    </div>
+
+    <script>
+        const API_BASE = 'http://127.0.0.1:8000/api';
+        let authToken = localStorage.getItem('access_token') || '';
+        
+        function showResult(elementId, data, type = 'info') {
+            const element = document.getElementById(elementId);
+            element.className = `result ${type}`;
+            element.style.display = 'block';
+            element.textContent = typeof data === 'string' ? data : JSON.stringify(data, null, 2);
+        }
+        
+        async function apiCall(url, options = {}) {
+            const headers = {
+                'Content-Type': 'application/json',
+                'Accept': 'application/json',
+                ...options.headers
+            };
+            
+            if (authToken) {
+                headers['Authorization'] = `Bearer ${authToken}`;
+            }
+            
+            try {
+                const response = await fetch(`${API_BASE}${url}`, {
+                    ...options,
+                    headers
+                });
+                
+                const data = await response.json();
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}: ${JSON.stringify(data)}`);
+                }
+                
+                return { success: true, data };
+            } catch (error) {
+                return { success: false, error: error.message };
+            }
+        }
+        
+        async function login() {
+            const phone = document.getElementById('loginPhone').value;
+            const password = document.getElementById('loginPassword').value;
+            
+            const result = await apiCall('/auth/login/', {
+                method: 'POST',
+                body: JSON.stringify({ phone, password })
+            });
+            
+            if (result.success) {
+                authToken = result.data.access_token;
+                localStorage.setItem('access_token', authToken);
+                showResult('login-result', '登录成功！', 'success');
+            } else {
+                showResult('login-result', `登录失败: ${result.error}`, 'error');
+            }
+        }
+        
+        function logout() {
+            authToken = '';
+            localStorage.removeItem('access_token');
+            showResult('login-result', '已退出登录', 'info');
+        }
+        
+        async function fetchProfile() {
+            const result = await apiCall('/users/users/profile/');
+            
+            if (result.success) {
+                const data = result.data;
+                
+                // 填充表单
+                document.getElementById('realName').value = data.real_name || '';
+                document.getElementById('email').value = data.email || '';
+                document.getElementById('gender').value = data.gender || '';
+                document.getElementById('address').value = data.address || '';
+                
+                if (data.student_profile) {
+                    document.getElementById('studentId').value = data.student_profile.student_id || '';
+                    document.getElementById('school').value = data.student_profile.school || '';
+                    document.getElementById('major').value = data.student_profile.major || '';
+                    document.getElementById('grade').value = data.student_profile.grade || '';
+                }
+                
+                showResult('profile-result', data, 'success');
+            } else {
+                showResult('profile-result', `获取用户信息失败: ${result.error}`, 'error');
+            }
+        }
+        
+        async function updateProfile() {
+            const profileData = {
+                real_name: document.getElementById('realName').value,
+                email: document.getElementById('email').value,
+                gender: document.getElementById('gender').value,
+                address: document.getElementById('address').value
+            };
+            
+            const result = await apiCall('/users/users/update_profile/', {
+                method: 'PUT',
+                body: JSON.stringify(profileData)
+            });
+            
+            if (result.success) {
+                showResult('profile-result', '个人信息更新成功！', 'success');
+            } else {
+                showResult('profile-result', `更新失败: ${result.error}`, 'error');
+            }
+        }
+        
+        async function fetchJobIntention() {
+            const result = await apiCall('/users/users/job_intention/');
+            
+            if (result.success) {
+                const data = result.data;
+                document.getElementById('position').value = data.position || '';
+                document.getElementById('salaryRange').value = data.salary_range || '';
+                document.getElementById('jobType').value = data.job_type || 'full_time';
+                document.getElementById('workCities').value = (data.work_cities || []).join(',');
+                document.getElementById('industry').value = data.industry || '';
+                document.getElementById('otherRequirements').value = data.other_requirements || '';
+                
+                showResult('job-intention-result', data, 'success');
+            } else {
+                showResult('job-intention-result', `获取求职意向失败: ${result.error}`, 'error');
+            }
+        }
+        
+        async function saveJobIntention() {
+            const intentionData = {
+                position: document.getElementById('position').value,
+                salary_range: document.getElementById('salaryRange').value,
+                job_type: document.getElementById('jobType').value,
+                work_cities: document.getElementById('workCities').value.split(',').filter(city => city.trim()),
+                industry: document.getElementById('industry').value,
+                other_requirements: document.getElementById('otherRequirements').value
+            };
+            
+            const result = await apiCall('/users/users/job_intention/', {
+                method: 'POST',
+                body: JSON.stringify(intentionData)
+            });
+            
+            if (result.success) {
+                showResult('job-intention-result', '求职意向保存成功！', 'success');
+            } else {
+                showResult('job-intention-result', `保存失败: ${result.error}`, 'error');
+            }
+        }
+        
+        async function fetchResumes() {
+            const result = await apiCall('/users/users/resumes/');
+            
+            if (result.success) {
+                const resumes = result.data;
+                const listElement = document.getElementById('resumes-list');
+                
+                if (resumes.length === 0) {
+                    listElement.innerHTML = '<p>暂无简历</p>';
+                } else {
+                    listElement.innerHTML = resumes.map(resume => `
+                        <div class="resume-item">
+                            <h4>${resume.name}</h4>
+                            <p>文件大小: ${resume.file_size_display}</p>
+                            <p>文件类型: ${resume.file_type.toUpperCase()}</p>
+                            <p>上传时间: ${new Date(resume.created_at).toLocaleString()}</p>
+                            ${resume.is_default ? '<p style="color: green;">默认简历</p>' : ''}
+                            <button onclick="downloadResume(${resume.id}, '${resume.name}')">下载</button>
+                            <button class="danger" onclick="deleteResume(${resume.id})">删除</button>
+                        </div>
+                    `).join('');
+                }
+                
+                showResult('resume-result', `找到 ${resumes.length} 份简历`, 'success');
+            } else {
+                showResult('resume-result', `获取简历列表失败: ${result.error}`, 'error');
+            }
+        }
+        
+        async function uploadResume() {
+            const fileInput = document.getElementById('resumeFile');
+            const file = fileInput.files[0];
+            
+            if (!file) {
+                showResult('resume-result', '请选择要上传的文件', 'error');
+                return;
+            }
+            
+            const formData = new FormData();
+            formData.append('file', file);
+            formData.append('name', file.name);
+            
+            try {
+                const response = await fetch(`${API_BASE}/users/users/resumes/`, {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${authToken}`
+                    },
+                    body: formData
+                });
+                
+                const data = await response.json();
+                
+                if (response.ok) {
+                    showResult('resume-result', '简历上传成功！', 'success');
+                    fetchResumes(); // 刷新简历列表
+                    fileInput.value = ''; // 清空文件选择
+                } else {
+                    showResult('resume-result', `上传失败: ${JSON.stringify(data)}`, 'error');
+                }
+            } catch (error) {
+                showResult('resume-result', `上传失败: ${error.message}`, 'error');
+            }
+        }
+        
+        async function downloadResume(resumeId, fileName) {
+            try {
+                const response = await fetch(`${API_BASE}/users/users/resumes/${resumeId}/`, {
+                    headers: {
+                        'Authorization': `Bearer ${authToken}`
+                    }
+                });
+                
+                if (response.ok) {
+                    const blob = await response.blob();
+                    const url = window.URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = fileName;
+                    document.body.appendChild(a);
+                    a.click();
+                    window.URL.revokeObjectURL(url);
+                    document.body.removeChild(a);
+                    
+                    showResult('resume-result', '简历下载成功！', 'success');
+                } else {
+                    showResult('resume-result', '下载失败', 'error');
+                }
+            } catch (error) {
+                showResult('resume-result', `下载失败: ${error.message}`, 'error');
+            }
+        }
+        
+        async function deleteResume(resumeId) {
+            if (!confirm('确定要删除这份简历吗？')) {
+                return;
+            }
+            
+            const result = await apiCall(`/users/users/resumes/${resumeId}/`, {
+                method: 'DELETE'
+            });
+            
+            if (result.success) {
+                showResult('resume-result', '简历删除成功！', 'success');
+                fetchResumes(); // 刷新简历列表
+            } else {
+                showResult('resume-result', `删除失败: ${result.error}`, 'error');
+            }
+        }
+        
+        // 页面加载时检查是否已登录
+        window.addEventListener('load', () => {
+            if (authToken) {
+                showResult('login-result', '检测到已保存的登录状态', 'info');
+            }
+        });
+    </script>
+</body>
+</html>
