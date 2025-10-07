@@ -11,4 +11,5 @@ urlpatterns = [
     path('', include(router.urls)),
     path('dashboard/stats/', views.AdminDashboardStatsView.as_view(), name='admin_dashboard_stats'),
     path('system/settings/', views.AdminSystemSettingsView.as_view(), name='admin_system_settings'),
+    path('stats/enterprise-dashboard/', views.EnterpriseStatsView.as_view(), name='enterprise_stats'),
 ]

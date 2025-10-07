@@ -59,6 +59,12 @@ const router = createRouter({
           meta: { requiresAuth: true, requiresAdmin: true }
         },
         {
+          path: '/recruitment-management',
+          name: 'recruitment-management',
+          component: () => import('../views/RecruitmentManagementView.vue'),
+          meta: { requiresAuth: true, requiresEnterprise: true }
+        },
+        {
           path: '/profile',
           name: 'profile',
           component: () => import('../views/ProfileView.vue'),
@@ -92,6 +98,12 @@ router.beforeEach((to, from, next) => {
 
   // ?????????????????
   if (to.meta.requiresAdmin && !userStore.isAdmin) {
+    next({ name: 'home' })
+    return
+  }
+
+  // 企业用户权限检查
+  if (to.meta.requiresEnterprise && !userStore.isEnterprise) {
     next({ name: 'home' })
     return
   }

@@ -6,6 +6,7 @@ from rest_framework import status
 from rest_framework.views import APIView
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.pagination import PageNumberPagination
+from rest_framework.exceptions import ValidationError
 from django_filters.rest_framework import DjangoFilterBackend
 from django.db.models import Q, F
 from .models import JobCategory, Job, JobFavorite
@@ -13,6 +14,8 @@ from .serializers import (
     JobCategorySerializer, JobListSerializer, JobDetailSerializer,
     JobCreateUpdateSerializer, JobFavoriteSerializer
 )
+from apps.applications.models import JobApplication
+from apps.applications.serializers import JobApplicationListSerializer
 
 
 class JobPagination(PageNumberPagination):
@@ -74,6 +77,25 @@ class JobViewSet(viewsets.ModelViewSet):
                 queryset = queryset.filter(skills_required__icontains=skill.strip())
 
         return queryset
+
+    def perform_create(self, serializer):
+        """创建职位时自动关联当前企业用户"""
+        if self.request.user.is_authenticated and self.request.user.user_type == 'enterprise':
+            try:
+                enterprise_profile = self.request.user.enterpriseprofile
+                serializer.save(company=enterprise_profile)
+            except:
+                raise ValidationError("企业档案不存在，无法发布职位")
+        else:
+            raise ValidationError("只有企业用户可以发布职位")
+
+    def get_permissions(self):
+        """根据动作设置权限"""
+        if self.action in ['create', 'update', 'partial_update', 'destroy']:
+            permission_classes = [IsAuthenticated]
+        else:
+            permission_classes = [AllowAny]
+        return [permission() for permission in permission_classes]
 
     def retrieve(self, request, *args, **kwargs):
         """获取职位详情，增加浏览量"""
@@ -157,3 +179,61 @@ class JobRecommendationView(APIView):
 class ToggleFavoriteView(APIView):
     def post(self, request, job_id):
         return Response({'message': 'Toggle favorite endpoint'}, status=status.HTTP_200_OK)
+
+
+class EnterpriseJobViewSet(viewsets.ModelViewSet):
+    """企业职位管理视图集"""
+    serializer_class = JobListSerializer
+    permission_classes = [IsAuthenticated]
+
+    def get_queryset(self):
+        """只返回当前企业用户发布的职位"""
+        if self.request.user.user_type != 'enterprise':
+            return Job.objects.none()
+
+        try:
+            enterprise_profile = self.request.user.enterpriseprofile
+            return Job.objects.filter(company=enterprise_profile).order_by('-created_at')
+        except:
+            return Job.objects.none()
+
+    def perform_create(self, serializer):
+        """创建职位时自动关联当前企业"""
+        try:
+            enterprise_profile = self.request.user.enterpriseprofile
+            serializer.save(company=enterprise_profile)
+        except:
+            raise ValidationError("企业档案不存在，无法发布职位")
+
+
+class EnterpriseApplicationViewSet(viewsets.ReadOnlyModelViewSet):
+    """企业简历管理视图集"""
+    serializer_class = JobApplicationListSerializer
+    permission_classes = [IsAuthenticated]
+
+    def get_queryset(self):
+        """只返回申请当前企业职位的简历"""
+        if self.request.user.user_type != 'enterprise':
+            return JobApplication.objects.none()
+
+        try:
+            enterprise_profile = self.request.user.enterpriseprofile
+            return JobApplication.objects.filter(
+                job__company=enterprise_profile
+            ).select_related('applicant', 'job').order_by('-applied_at')
+        except:
+            return JobApplication.objects.none()
+
+    @action(detail=True, methods=['patch'])
+    def update_status(self, request, pk=None):
+        """更新申请状态"""
+        application = self.get_object()
+        new_status = request.data.get('status')
+
+        if new_status not in ['pending', 'reviewing', 'interview', 'accepted', 'rejected']:
+            return Response({'error': '无效的状态'}, status=status.HTTP_400_BAD_REQUEST)
+
+        application.status = new_status
+        application.save()
+
+        return Response({'message': '状态更新成功'}, status=status.HTTP_200_OK)

@@ -5,6 +5,8 @@ from . import views
 router = DefaultRouter()
 router.register(r'categories', views.JobCategoryViewSet, basename='job_category')
 router.register(r'favorites', views.JobFavoriteViewSet, basename='job_favorite')
+router.register(r'enterprise-jobs', views.EnterpriseJobViewSet, basename='enterprise-jobs')
+router.register(r'enterprise-applications', views.EnterpriseApplicationViewSet, basename='enterprise-applications')
 router.register(r'', views.JobViewSet, basename='job')
 
 urlpatterns = [

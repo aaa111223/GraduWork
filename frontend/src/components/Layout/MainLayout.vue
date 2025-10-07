@@ -42,32 +42,58 @@
             <el-icon><House /></el-icon>
             <span>首页</span>
           </el-menu-item>
-          
-          <el-menu-item index="/my-employment" v-if="userStore.isLoggedIn">
-            <el-icon><User /></el-icon>
-            <span>我的就业</span>
-          </el-menu-item>
-          
-          <el-menu-item index="/job-market">
-            <el-icon><Briefcase /></el-icon>
-            <span>就业市场</span>
-          </el-menu-item>
-          
-          <el-menu-item index="/applications" v-if="userStore.isLoggedIn">
-            <el-icon><Document /></el-icon>
-            <span>申请与管理</span>
-          </el-menu-item>
-          
+
+          <!-- 学生用户菜单 -->
+          <template v-if="userStore.isStudent">
+            <el-menu-item index="/my-employment">
+              <el-icon><User /></el-icon>
+              <span>我的就业</span>
+            </el-menu-item>
+
+            <el-menu-item index="/job-market">
+              <el-icon><Briefcase /></el-icon>
+              <span>就业市场</span>
+            </el-menu-item>
+
+            <el-menu-item index="/applications">
+              <el-icon><Document /></el-icon>
+              <span>申请与管理</span>
+            </el-menu-item>
+          </template>
+
+          <!-- 企业用户菜单 -->
+          <template v-if="userStore.isEnterprise">
+            <el-menu-item index="/recruitment-management">
+              <el-icon><Briefcase /></el-icon>
+              <span>招聘管理</span>
+            </el-menu-item>
+
+            <el-menu-item index="/job-market">
+              <el-icon><Search /></el-icon>
+              <span>人才市场</span>
+            </el-menu-item>
+          </template>
+
+          <!-- 未登录用户菜单 -->
+          <template v-if="!userStore.isLoggedIn">
+            <el-menu-item index="/job-market">
+              <el-icon><Briefcase /></el-icon>
+              <span>就业市场</span>
+            </el-menu-item>
+          </template>
+
+          <!-- 管理员菜单 -->
           <el-menu-item index="/system-management" v-if="userStore.isAdmin">
             <el-icon><Setting /></el-icon>
             <span>系统管理</span>
           </el-menu-item>
-          
+
+          <!-- 通用菜单 -->
           <el-menu-item index="/profile" v-if="userStore.isLoggedIn">
             <el-icon><UserFilled /></el-icon>
             <span>个人中心</span>
           </el-menu-item>
-          
+
           <el-menu-item index="/feedback" v-if="userStore.isLoggedIn">
             <el-icon><ChatDotRound /></el-icon>
             <span>我的反馈</span>
@@ -87,6 +113,9 @@
 import { useUserStore } from '@/stores/user'
 import { ElMessage } from 'element-plus'
 import { useRouter } from 'vue-router'
+import {
+  House, User, Briefcase, Document, Setting, UserFilled, ChatDotRound, ArrowDown, Search
+} from '@element-plus/icons-vue'
 
 const userStore = useUserStore()
 const router = useRouter()

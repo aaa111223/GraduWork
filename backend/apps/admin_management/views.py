@@ -91,6 +91,55 @@ class AdminDashboardStatsView(APIView):
         })
 
 
+class EnterpriseStatsView(APIView):
+    """企业统计数据视图"""
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        # 确保是企业用户
+        if request.user.user_type != 'enterprise':
+            return Response({'error': '只有企业用户可以访问此接口'}, status=status.HTTP_403_FORBIDDEN)
+
+        try:
+            # 获取企业档案
+            enterprise_profile = request.user.enterpriseprofile
+        except:
+            return Response({'error': '企业档案不存在'}, status=status.HTTP_404_NOT_FOUND)
+
+        # 统计企业发布的职位
+        published_jobs = Job.objects.filter(
+            company=enterprise_profile,
+            status='published'
+        ).count()
+
+        # 统计收到的简历申请
+        received_applications = JobApplication.objects.filter(
+            job__company=enterprise_profile
+        ).count()
+
+        # 统计安排的面试
+        from apps.applications.models import Interview
+        scheduled_interviews = Interview.objects.filter(
+            application__job__company=enterprise_profile,
+            status__in=['scheduled', 'confirmed']
+        ).count()
+
+        # 统计成功录用的候选人
+        hired_candidates = JobApplication.objects.filter(
+            job__company=enterprise_profile,
+            status='accepted'
+        ).count()
+
+        stats = {
+            'publishedJobs': published_jobs,
+            'receivedApplications': received_applications,
+            'scheduledInterviews': scheduled_interviews,
+            'hiredCandidates': hired_candidates
+        }
+
+        return Response(stats)
+
+
 class AdminUserManagementViewSet(viewsets.ModelViewSet):
     """管理员用户管理"""
     queryset = User.objects.all().order_by('-created_at')

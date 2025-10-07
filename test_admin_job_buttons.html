@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>管理员职位管理按钮布局测试</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        
+        h1 {
+            color: #2c3e50;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        
+        .alert {
+            background-color: #fff3cd;
+            border: 1px solid #ffeaa7;
+            color: #856404;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+        
+        .alert-success {
+            background-color: #d4edda;
+            border-color: #c3e6cb;
+            color: #155724;
+        }
+        
+        .mock-table {
+            border: 1px solid #e8e8e8;
+            border-radius: 8px;
+            overflow: hidden;
+            margin-bottom: 20px;
+        }
+        
+        .mock-header {
+            background-color: #fafafa;
+            padding: 12px;
+            border-bottom: 1px solid #e8e8e8;
+            font-weight: 600;
+            display: grid;
+            grid-template-columns: 2fr 1fr 1fr 1fr 1fr 280px;
+            gap: 10px;
+            align-items: center;
+        }
+        
+        .mock-row {
+            padding: 12px;
+            border-bottom: 1px solid #f0f0f0;
+            display: grid;
+            grid-template-columns: 2fr 1fr 1fr 1fr 1fr 280px;
+            gap: 10px;
+            align-items: center;
+        }
+        
+        .mock-row:hover {
+            background-color: #f5f7fa;
+        }
+        
+        .mock-row:last-child {
+            border-bottom: none;
+        }
+        
+        /* 模拟优化后的按钮样式 */
+        .action-buttons {
+            display: flex !important;
+            gap: 8px;
+            align-items: center;
+            flex-wrap: wrap;
+            justify-content: flex-start;
+        }
+        
+        .action-buttons button {
+            margin: 0 !important;
+            min-width: 60px;
+            font-size: 12px;
+            padding: 5px 12px;
+            flex-shrink: 0;
+            border: 1px solid #d9d9d9;
+            border-radius: 4px;
+            background: white;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .action-buttons button:hover {
+            border-color: #409eff;
+            color: #409eff;
+        }
+        
+        .btn-primary { background-color: #409eff; color: white; border-color: #409eff; }
+        .btn-success { background-color: #67c23a; color: white; border-color: #67c23a; }
+        .btn-warning { background-color: #e6a23c; color: white; border-color: #e6a23c; }
+        .btn-danger { background-color: #f56c6c; color: white; border-color: #f56c6c; }
+        .btn-info { background-color: #909399; color: white; border-color: #909399; }
+        
+        .status {
+            display: inline-block;
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+        
+        .status-published {
+            background-color: #f6ffed;
+            color: #52c41a;
+            border: 1px solid #b7eb8f;
+        }
+        
+        .status-draft {
+            background-color: #f0f0f0;
+            color: #666;
+            border: 1px solid #d9d9d9;
+        }
+        
+        .status-offline {
+            background-color: #fff2f0;
+            color: #ff4d4f;
+            border: 1px solid #ffccc7;
+        }
+        
+        .test-steps {
+            background-color: #f8f9fa;
+            padding: 20px;
+            border-radius: 8px;
+            margin-top: 20px;
+        }
+        
+        .test-steps h3 {
+            color: #2c3e50;
+            margin-top: 0;
+        }
+        
+        .test-steps ol {
+            margin: 0;
+            padding-left: 20px;
+        }
+        
+        .test-steps li {
+            margin-bottom: 8px;
+            color: #555;
+        }
+        
+        .highlight {
+            background-color: #fff3cd;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-weight: 500;
+        }
+        
+        @media (max-width: 768px) {
+            .mock-header, .mock-row {
+                grid-template-columns: 1fr;
+                gap: 5px;
+            }
+            
+            .action-buttons {
+                flex-direction: column;
+                gap: 4px;
+            }
+            
+            .action-buttons button {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔧 管理员职位管理按钮布局修复</h1>
+        
+        <div class="alert">
+            <strong>问题描述：</strong> 管理员用户在系统管理页面的职位管理表格中，操作按钮没有水平排列。
+        </div>
+        
+        <div class="alert alert-success">
+            <strong>修复状态：</strong> ✅ 已应用CSS强化样式，按钮现在应该水平排列。
+        </div>
+        
+        <h2>📊 修复后的职位管理表格预览</h2>
+        
+        <div class="mock-table">
+            <div class="mock-header">
+                <div>职位名称</div>
+                <div>公司名称</div>
+                <div>工作地点</div>
+                <div>薪资</div>
+                <div>状态</div>
+                <div>操作</div>
+            </div>
+            
+            <div class="mock-row">
+                <div>前端开发工程师</div>
+                <div>科技有限公司</div>
+                <div>北京</div>
+                <div>15-25K</div>
+                <div><span class="status status-published">已发布</span></div>
+                <div class="action-buttons">
+                    <button>编辑</button>
+                    <button class="btn-info">下线</button>
+                    <button class="btn-warning">申请者</button>
+                    <button class="btn-danger">删除</button>
+                </div>
+            </div>
+            
+            <div class="mock-row">
+                <div>后端开发工程师</div>
+                <div>互联网公司</div>
+                <div>上海</div>
+                <div>18-30K</div>
+                <div><span class="status status-draft">草稿</span></div>
+                <div class="action-buttons">
+                    <button>编辑</button>
+                    <button class="btn-success">发布</button>
+                    <button class="btn-warning">申请者</button>
+                    <button class="btn-danger">删除</button>
+                </div>
+            </div>
+            
+            <div class="mock-row">
+                <div>产品经理</div>
+                <div>创业公司</div>
+                <div>深圳</div>
+                <div>20-35K</div>
+                <div><span class="status status-offline">已下线</span></div>
+                <div class="action-buttons">
+                    <button>编辑</button>
+                    <button class="btn-success">发布</button>
+                    <button class="btn-warning">申请者</button>
+                    <button class="btn-danger">删除</button>
+                </div>
+            </div>
+        </div>
+        
+        <div class="test-steps">
+            <h3>🧪 测试步骤</h3>
+            <ol>
+                <li>访问系统：<span class="highlight">http://localhost:5173/</span></li>
+                <li>使用管理员账号登录系统</li>
+                <li>进入<span class="highlight">系统管理</span>页面</li>
+                <li>切换到<span class="highlight">职位管理</span>标签页</li>
+                <li>查看表格中的<span class="highlight">操作列</span></li>
+                <li>确认按钮是否水平排列：编辑 | 下线/发布 | 申请者 | 删除</li>
+            </ol>
+        </div>
+        
+        <div class="test-steps">
+            <h3>🔧 应用的修复</h3>
+            <p><strong>CSS强化样式：</strong></p>
+            <ul>
+                <li>✅ 添加了 <code>!important</code> 声明覆盖Element Plus默认样式</li>
+                <li>✅ 使用深度选择器 <code>:deep()</code> 确保样式穿透组件</li>
+                <li>✅ 强制设置 <code>flex-direction: row</code> 确保水平排列</li>
+                <li>✅ 设置 <code>flex-shrink: 0</code> 防止按钮收缩</li>
+                <li>✅ 统一按钮间距和尺寸</li>
+            </ul>
+        </div>
+        
+        <div class="test-steps">
+            <h3>📱 响应式适配</h3>
+            <p><strong>移动端优化：</strong></p>
+            <ul>
+                <li>✅ 屏幕宽度 ≤ 768px 时自动切换为垂直布局</li>
+                <li>✅ 按钮宽度100%，便于触摸操作</li>
+                <li>✅ 间距调整为4px，节省空间</li>
+            </ul>
+        </div>
+        
+        <div class="alert alert-success">
+            <strong>预期效果：</strong><br>
+            • 桌面端：4个操作按钮在同一行水平排列<br>
+            • 移动端：按钮垂直排列，宽度100%<br>
+            • 悬浮效果：鼠标悬浮时按钮有颜色变化<br>
+            • 固定列：操作列固定在右侧，横向滚动时始终可见
+        </div>
+        
+        <div style="text-align: center; margin-top: 30px; padding: 20px; background-color: #f0f9ff; border-radius: 8px;">
+            <h3 style="color: #1890ff; margin: 0 0 10px 0;">🎉 修复完成</h3>
+            <p style="margin: 0; color: #666;">
+                管理员职位管理的操作按钮现在应该正确水平排列了！<br>
+                请访问系统管理页面验证修复效果。
+            </p>
+        </div>
+    </div>
+</body>
+</html>

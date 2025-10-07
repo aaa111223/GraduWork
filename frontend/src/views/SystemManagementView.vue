@@ -86,19 +86,21 @@
               </template>
             </el-table-column>
             <el-table-column prop="registerDate" label="注册时间" width="120" />
-            <el-table-column label="操作" width="200">
+            <el-table-column label="操作" width="220" fixed="right">
               <template #default="scope">
-                <el-button size="small" @click="editUser(scope.row)">编辑</el-button>
-                <el-button
-                  size="small"
-                  :type="scope.row.status === 'active' ? 'warning' : 'success'"
-                  @click="toggleUserStatus(scope.row)"
-                >
-                  {{ scope.row.status === 'active' ? '禁用' : '启用' }}
-                </el-button>
-                <el-button size="small" type="danger" @click="deleteUser(scope.row)">
-                  删除
-                </el-button>
+                <div class="action-buttons">
+                  <el-button size="small" @click="editUser(scope.row)">编辑</el-button>
+                  <el-button
+                    size="small"
+                    :type="scope.row.status === 'active' ? 'warning' : 'success'"
+                    @click="toggleUserStatus(scope.row)"
+                  >
+                    {{ scope.row.status === 'active' ? '禁用' : '启用' }}
+                  </el-button>
+                  <el-button size="small" type="danger" @click="deleteUser(scope.row)">
+                    删除
+                  </el-button>
+                </div>
               </template>
             </el-table-column>
           </el-table>
@@ -139,18 +141,20 @@
             </el-table-column>
             <el-table-column prop="publishDate" label="发布时间" width="120" />
             <el-table-column prop="applicants" label="申请人数" width="100" />
-            <el-table-column label="操作" width="250">
+            <el-table-column label="操作" width="260" fixed="right">
               <template #default="scope">
-                <el-button size="small" @click="editJob(scope.row)">编辑</el-button>
-                <el-button size="small" type="info" @click="changeJobStatus(scope.row)">
-                  {{ scope.row.status === 'published' ? '下线' : '发布' }}
-                </el-button>
-                <el-button size="small" type="warning" @click="viewApplicants(scope.row)">
-                  申请者
-                </el-button>
-                <el-button size="small" type="danger" @click="deleteJob(scope.row)">
-                  删除
-                </el-button>
+                <div class="action-buttons">
+                  <el-button size="small" @click="editJob(scope.row)">编辑</el-button>
+                  <el-button size="small" type="info" @click="changeJobStatus(scope.row)">
+                    {{ scope.row.status === 'published' ? '下线' : '发布' }}
+                  </el-button>
+                  <el-button size="small" type="warning" @click="viewApplicants(scope.row)">
+                    申请者
+                  </el-button>
+                  <el-button size="small" type="danger" @click="deleteJob(scope.row)">
+                    删除
+                  </el-button>
+                </div>
               </template>
             </el-table-column>
           </el-table>
@@ -176,20 +180,22 @@
               </template>
             </el-table-column>
             <el-table-column prop="submitDate" label="提交时间" width="120" />
-            <el-table-column label="操作" width="200">
+            <el-table-column label="操作" width="200" fixed="right">
               <template #default="scope">
-                <el-button size="small" @click="viewFeedback(scope.row)">查看</el-button>
-                <el-button
-                  size="small"
-                  type="primary"
-                  v-if="scope.row.status === 'pending'"
-                  @click="replyFeedback(scope.row)"
-                >
-                  回复
-                </el-button>
-                <el-button size="small" type="danger" @click="deleteFeedback(scope.row)">
-                  删除
-                </el-button>
+                <div class="action-buttons">
+                  <el-button size="small" @click="viewFeedback(scope.row)">查看</el-button>
+                  <el-button
+                    size="small"
+                    type="primary"
+                    v-if="scope.row.status === 'pending'"
+                    @click="replyFeedback(scope.row)"
+                  >
+                    回复
+                  </el-button>
+                  <el-button size="small" type="danger" @click="deleteFeedback(scope.row)">
+                    删除
+                  </el-button>
+                </div>
               </template>
             </el-table-column>
           </el-table>
@@ -944,6 +950,79 @@ onMounted(async () => {
   margin-bottom: 16px;
 }
 
+/* 操作按钮样式 */
+.action-buttons {
+  display: flex !important;
+  gap: 6px;
+  align-items: center;
+  flex-wrap: nowrap !important;
+  justify-content: flex-start;
+  white-space: nowrap;
+}
+
+.action-buttons .el-button {
+  margin: 0 !important;
+  min-width: 50px;
+  font-size: 11px;
+  padding: 4px 8px;
+  flex-shrink: 1;
+  white-space: nowrap;
+}
+
+.action-buttons .el-button + .el-button {
+  margin-left: 0 !important;
+}
+
+/* 确保表格单元格内容水平排列 */
+.el-table :deep(.el-table__cell) {
+  padding: 8px 12px;
+}
+
+.el-table :deep(.el-table__cell .cell) {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+}
+
+/* 强制操作列按钮水平排列 */
+.el-table :deep(.el-table__cell .cell .action-buttons) {
+  display: flex !important;
+  flex-direction: row !important;
+  gap: 6px;
+  align-items: center;
+  flex-wrap: nowrap !important;
+  width: 100%;
+  overflow: hidden;
+}
+
+.el-table :deep(.el-table__cell .cell .action-buttons .el-button) {
+  margin: 0 !important;
+  flex-shrink: 1;
+  min-width: 50px;
+  font-size: 11px;
+  padding: 4px 8px;
+  white-space: nowrap;
+}
+
+/* 表格样式优化 */
+.el-table {
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.el-table :deep(.el-table__header) {
+  background-color: #fafafa;
+}
+
+.el-table :deep(.el-table__row:hover) {
+  background-color: #f5f7fa;
+}
+
+/* 操作列固定样式 */
+.el-table :deep(.el-table__fixed-right) {
+  box-shadow: -2px 0 8px rgba(0, 0, 0, 0.1);
+}
+
 @media (max-width: 768px) {
   .stats-overview {
     grid-template-columns: repeat(2, 1fr);
@@ -952,6 +1031,18 @@ onMounted(async () => {
   .table-header {
     flex-direction: column;
     gap: 12px;
+  }
+
+  /* 移动端操作按钮优化 */
+  .action-buttons {
+    flex-direction: column;
+    gap: 4px;
+    align-items: stretch;
+  }
+
+  .action-buttons .el-button {
+    width: 100%;
+    min-width: auto;
   }
 }
 </style>

@@ -10,7 +10,8 @@
       <div class="left-section">
         <el-card>
           <template #header>
-            <span>基本信息</span>
+            <span v-if="userStore.isEnterprise">企业基本信息</span>
+            <span v-else>基本信息</span>
           </template>
 
           <div class="profile-info">
@@ -97,13 +98,71 @@
                 </el-form-item>
               </el-form>
             </el-card>
+
+            <!-- 企业信息管理 -->
+            <el-card v-if="userStore.isEnterprise" style="margin-top: 20px;">
+              <template #header>
+                <span>企业信息</span>
+              </template>
+
+              <el-form :model="enterpriseProfile" label-width="100px">
+                <el-form-item label="企业名称">
+                  <el-input v-model="enterpriseProfile.company_name" placeholder="请输入企业名称" />
+                </el-form-item>
+
+                <el-form-item label="企业代码">
+                  <el-input v-model="enterpriseProfile.company_code" placeholder="请输入企业统一社会信用代码" />
+                </el-form-item>
+
+                <el-form-item label="所属行业">
+                  <el-select v-model="enterpriseProfile.industry" placeholder="请选择所属行业" style="width: 100%">
+                    <el-option v-for="industry in industries" :key="industry" :label="industry" :value="industry" />
+                  </el-select>
+                </el-form-item>
+
+                <el-form-item label="企业规模">
+                  <el-select v-model="enterpriseProfile.company_size" placeholder="请选择企业规模" style="width: 100%">
+                    <el-option label="1-49人" value="1-49人" />
+                    <el-option label="50-99人" value="50-99人" />
+                    <el-option label="100-499人" value="100-499人" />
+                    <el-option label="500-999人" value="500-999人" />
+                    <el-option label="1000人以上" value="1000人以上" />
+                  </el-select>
+                </el-form-item>
+
+                <el-form-item label="企业地址">
+                  <el-input v-model="enterpriseProfile.company_address" type="textarea" placeholder="请输入企业详细地址" />
+                </el-form-item>
+
+                <el-form-item label="企业网站">
+                  <el-input v-model="enterpriseProfile.company_website" placeholder="请输入企业官网地址" />
+                </el-form-item>
+
+                <el-form-item label="企业简介">
+                  <el-input v-model="enterpriseProfile.company_description" type="textarea" :rows="4" placeholder="请输入企业简介" />
+                </el-form-item>
+
+                <el-form-item label="认证状态">
+                  <el-tag v-if="enterpriseProfile.is_verified" type="success">已认证</el-tag>
+                  <el-tag v-else type="warning">待认证</el-tag>
+                  <el-button v-if="!enterpriseProfile.is_verified" type="primary" size="small" style="margin-left: 10px;">
+                    申请认证
+                  </el-button>
+                </el-form-item>
+
+                <el-form-item>
+                  <el-button type="primary" @click="saveEnterpriseProfile" :loading="loading">保存企业信息</el-button>
+                </el-form-item>
+              </el-form>
+            </el-card>
           </div>
         </el-card>
       </div>
 
-      <!-- 右侧：简历管理 -->
+      <!-- 右侧：简历管理/企业统计 -->
       <div class="right-section">
-        <el-card>
+        <!-- 学生用户：简历管理 -->
+        <el-card v-if="userStore.isStudent">
           <template #header>
             <div class="card-header">
               <span>简历管理</span>
@@ -138,8 +197,8 @@
           </div>
         </el-card>
 
-        <!-- 求职意向 -->
-        <el-card style="margin-top: 20px;">
+        <!-- 学生用户：求职意向 -->
+        <el-card v-if="userStore.isStudent" style="margin-top: 20px;">
           <template #header>
             <span>求职意向</span>
           </template>
@@ -206,6 +265,54 @@
             </el-form-item>
           </el-form>
         </el-card>
+
+        <!-- 企业用户：招聘统计 -->
+        <el-card v-if="userStore.isEnterprise">
+          <template #header>
+            <span>招聘统计</span>
+          </template>
+
+          <div class="stats-grid">
+            <div class="stat-item">
+              <div class="stat-number">{{ enterpriseStats.publishedJobs }}</div>
+              <div class="stat-label">发布职位</div>
+            </div>
+            <div class="stat-item">
+              <div class="stat-number">{{ enterpriseStats.receivedApplications }}</div>
+              <div class="stat-label">收到简历</div>
+            </div>
+            <div class="stat-item">
+              <div class="stat-number">{{ enterpriseStats.scheduledInterviews }}</div>
+              <div class="stat-label">安排面试</div>
+            </div>
+            <div class="stat-item">
+              <div class="stat-number">{{ enterpriseStats.hiredCandidates }}</div>
+              <div class="stat-label">成功录用</div>
+            </div>
+          </div>
+        </el-card>
+
+        <!-- 企业用户：快捷操作 -->
+        <el-card v-if="userStore.isEnterprise" style="margin-top: 20px;">
+          <template #header>
+            <span>快捷操作</span>
+          </template>
+
+          <div class="quick-actions">
+            <el-button type="primary" @click="$router.push('/recruitment-management')" style="width: 100%; margin-bottom: 10px;">
+              <el-icon><Briefcase /></el-icon>
+              招聘管理
+            </el-button>
+            <el-button @click="$router.push('/job-market')" style="width: 100%; margin-bottom: 10px;">
+              <el-icon><Search /></el-icon>
+              发布职位
+            </el-button>
+            <el-button @click="$router.push('/feedback')" style="width: 100%;">
+              <el-icon><ChatDotRound /></el-icon>
+              意见反馈
+            </el-button>
+          </div>
+        </el-card>
       </div>
     </div>
 
@@ -242,7 +349,7 @@
 <script setup>
 import { ref, onMounted } from 'vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
-import { User, Plus, UploadFilled } from '@element-plus/icons-vue'
+import { User, Plus, UploadFilled, Briefcase, Search, ChatDotRound } from '@element-plus/icons-vue'
 import { useUserStore } from '@/stores/user'
 import request from '@/utils/request'
 
@@ -279,6 +386,24 @@ const studentProfile = ref({
   skills: []
 })
 
+const enterpriseProfile = ref({
+  company_name: '',
+  company_code: '',
+  industry: '',
+  company_size: '',
+  company_address: '',
+  company_website: '',
+  company_description: '',
+  is_verified: false
+})
+
+const enterpriseStats = ref({
+  publishedJobs: 0,
+  receivedApplications: 0,
+  scheduledInterviews: 0,
+  hiredCandidates: 0
+})
+
 const resumes = ref([])
 
 const jobIntention = ref({
@@ -290,6 +415,15 @@ const jobIntention = ref({
   company_size: '',
   other_requirements: ''
 })
+
+const uploadProgress = ref(0)
+
+// 常量数据
+const industries = [
+  '互联网/电子商务', '计算机软件', '金融/投资/证券', '房地产/建筑', '制造业',
+  '医疗/制药', '教育/培训', '媒体/广告', '零售/贸易', '物流/运输',
+  '能源/化工', '政府/非营利', '咨询/法律', '旅游/酒店', '其他'
+]
 
 // 通用错误处理函数
 const handleError = (error, defaultMessage) => {
@@ -361,6 +495,20 @@ const fetchUserProfile = async () => {
         industry: data.job_intention.industry || '',
         company_size: data.job_intention.company_size || '',
         other_requirements: data.job_intention.other_requirements || ''
+      }
+    }
+
+    // 更新企业档案信息
+    if (data.enterprise_profile) {
+      enterpriseProfile.value = {
+        company_name: data.enterprise_profile.company_name || '',
+        company_code: data.enterprise_profile.company_code || '',
+        industry: data.enterprise_profile.industry || '',
+        company_size: data.enterprise_profile.company_size || '',
+        company_address: data.enterprise_profile.company_address || '',
+        company_website: data.enterprise_profile.company_website || '',
+        company_description: data.enterprise_profile.company_description || '',
+        is_verified: data.enterprise_profile.is_verified || false
       }
     }
 
@@ -469,6 +617,61 @@ const saveJobIntention = async () => {
     handleError(error, '保存求职意向失败')
   } finally {
     loading.value = false
+  }
+}
+
+// 保存企业档案
+const saveEnterpriseProfile = async () => {
+  try {
+    loading.value = true
+    const profileData = {}
+
+    if (enterpriseProfile.value.company_name) {
+      profileData.company_name = enterpriseProfile.value.company_name
+    }
+    if (enterpriseProfile.value.company_code) {
+      profileData.company_code = enterpriseProfile.value.company_code
+    }
+    if (enterpriseProfile.value.industry) {
+      profileData.industry = enterpriseProfile.value.industry
+    }
+    if (enterpriseProfile.value.company_size) {
+      profileData.company_size = enterpriseProfile.value.company_size
+    }
+    if (enterpriseProfile.value.company_address) {
+      profileData.company_address = enterpriseProfile.value.company_address
+    }
+    if (enterpriseProfile.value.company_website) {
+      profileData.company_website = enterpriseProfile.value.company_website
+    }
+    if (enterpriseProfile.value.company_description) {
+      profileData.company_description = enterpriseProfile.value.company_description
+    }
+
+    await request.put('/users/enterprise-profiles/update_current/', profileData)
+    ElMessage.success('企业信息保存成功')
+    await fetchUserProfile()
+  } catch (error) {
+    handleError(error, '保存企业信息失败')
+  } finally {
+    loading.value = false
+  }
+}
+
+// 获取企业统计数据
+const fetchEnterpriseStats = async () => {
+  try {
+    const response = await request.get('/admin/stats/enterprise-dashboard/')
+    enterpriseStats.value = response.data
+  } catch (error) {
+    console.error('获取企业统计数据失败:', error)
+    // 使用默认值
+    enterpriseStats.value = {
+      publishedJobs: 0,
+      receivedApplications: 0,
+      scheduledInterviews: 0,
+      hiredCandidates: 0
+    }
   }
 }
 
@@ -633,6 +836,9 @@ const uploadAvatar = () => {
 
 onMounted(() => {
   fetchUserProfile()
+  if (userStore.isEnterprise) {
+    fetchEnterpriseStats()
+  }
 })
 </script>
 
@@ -725,6 +931,48 @@ onMounted(() => {
   .resume-actions {
     align-self: stretch;
     justify-content: center;
+  }
+}
+
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 15px;
+  margin-bottom: 20px;
+}
+
+.stat-item {
+  text-align: center;
+  padding: 20px;
+  background: #f8f9fa;
+  border-radius: 8px;
+}
+
+.stat-number {
+  font-size: 24px;
+  font-weight: 600;
+  color: #409eff;
+  margin-bottom: 5px;
+}
+
+.stat-label {
+  font-size: 14px;
+  color: #606266;
+}
+
+.quick-actions {
+  display: flex;
+  flex-direction: column;
+}
+
+/* 响应式设计 */
+@media (max-width: 768px) {
+  .profile-content {
+    grid-template-columns: 1fr;
+  }
+
+  .stats-grid {
+    grid-template-columns: 1fr;
   }
 }
 </style>

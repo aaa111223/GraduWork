@@ -266,3 +266,18 @@ class EnterpriseProfileViewSet(ModelViewSet):
         if self.request.user.has_role('admin') or self.request.user.has_role('super_admin'):
             return EnterpriseProfile.objects.all()
         return EnterpriseProfile.objects.filter(user=self.request.user)
+
+    @action(detail=False, methods=['put'])
+    def update_current(self, request):
+        """更新当前用户的企业档案"""
+        try:
+            enterprise_profile = request.user.enterpriseprofile
+        except EnterpriseProfile.DoesNotExist:
+            # 如果企业档案不存在，创建一个新的
+            enterprise_profile = EnterpriseProfile.objects.create(user=request.user)
+
+        serializer = EnterpriseProfileSerializer(enterprise_profile, data=request.data, partial=True)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
